@@ -1,0 +1,155 @@
+Step 1: Set Up EKS (Elastic Kubernetes Service) Using AWS Console
+
+1. Log in to the AWS Management Console
+   - Open your web browser and visit the [AWS Management Console](https://aws.amazon.com/console/).
+   - Enter your AWS account credentials and sign in.
+
+2. Navigate to EKS
+   - In the AWS Management Console, locate the search bar at the top.
+   - Type EK and press Enter.
+   - Click on Elastic Kubernetes Service from the search results.
+
+3. Create an EKS Cluster
+   - On the EKS dashboard, click the Create Cluster button.
+   - Name your cluster: Enter a name like `my-cluster`.
+   - Kubernetes version: Choose the version of Kubernetes you want to use (you can leave it as the default).
+   - IAM role: Choose an existing IAM role or create a new one (this role allows EKS to manage resources on your behalf).
+   - Networking: Select your VPC, subnets, and security groups (or use the default settings).
+   - Review your settings and click Create.
+   - Note: The cluster creation process may take several minutes.
+
+4. Create and Configure Worker Nodes
+   - After your cluster is created, you'll need to add worker nodes (EC2 instances that will run your Kubernetes pods).
+   - Go to the Compute section within your EKS cluster dashboard.
+   - Click on Add Node Group.
+   - Name your node group: Enter a name for your node group.
+   - Instance type: Choose the type of EC2 instances (e.g., `t3.medium`).
+   - Number of nodes: Specify how many nodes you want in your node group.
+   - Configure other settings as needed, then click Create.
+   - Note: Your worker nodes will be created and added to the cluster. This process may take a few minutes.
+
+
+
+Step 2: Deploy a Web Application Using AWS Console
+
+1. Set Up an Amazon ECR (Elastic Container Registry)
+   - In the AWS Console, search for and select ECR (Elastic Container Registry).
+   - Click Create Repository.
+   - Repository name: Enter a name for your repository (e.g., `my-app-repo`).
+   - Click Create Repository.
+   - Once created, AWS will provide commands to help you push your Docker image to ECR. Use the following commands:
+
+      a. Authenticate Docker to your registry:
+     [aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account_id>.dkr.ecr.<region>.amazonaws.com]
+
+
+      b. Build and tag your Docker image:
+     [docker build -t my-app .
+docker tag my-app:latest <account_id>.dkr.ecr.<region>.amazonaws.com/my-app-repo:latest]
+
+
+      c. Push the image to ECR:
+     [docker push <account_id>.dkr.ecr.<region>.amazonaws.com/my-app-repo:latest]
+
+
+2. Deploy Your Application Using EKS
+   - Go back to your EKS cluster in the AWS Console.
+   - On the left-hand menu, under Workloads, click Deployments.
+   - Click Deploy.
+   - Name your deployment: Enter a name (e.g., `my-app-deployment`).
+   - Image: Use the Docker image you pushed to ECR in the previous step.
+   - Replicas: Enter the number of instances (e.g., 2).
+   - Ports: Set the port (e.g., 80 for HTTP).
+   - Click Deploy.
+
+3. Expose Your Deployment
+   - After your deployment is running, expose it to the internet.
+   - Go to the Services section in the EKS dashboard.
+   - Click Create Service.
+   - Service type: Choose `LoadBalancer` to expose your service to the internet.
+   - Selector: Select the deployment you created earlier.
+   - Ports: Specify the port (e.g., 80 for HTTP).
+   - Click Create Service.
+
+
+
+Step 3: Access Your Web Application
+
+1. Get the Load Balancer URL
+   - Once the service is created, AWS will automatically set up an external load balancer.
+   - In the Services section, find your service.
+   - Look for the External IP or DNS name (this is the URL for your web application).
+   - Copy the DNS name and paste it into your browser to access your deployed web application.
+
+
+
+Step 4: Monitor and Manage Your Deployment
+
+1. Monitor the Cluster
+   - In the EKS dashboard, monitor your cluster by viewing the Workloads and Pods sections.
+   - Check the health and status of your pods to ensure everything is running smoothly.
+
+2. Scale Your Deployment
+   - If you need to handle more traffic, scale your deployment.
+   - Go to the Workloads section, find your deployment, and click on it.
+   - Click Edit and increase the number of replicas.
+   - Click Save to apply the changes.
+
+
+
+Step 5: Submit Your Report
+
+1. Document the Process
+   - Write a detailed report explaining each step you took in the AWS Console.
+   - Include screenshots of important steps (e.g., creating the cluster, deploying the application, exposing the service).
+
+2. Write Your Report
+   - Introduction: Explain the purpose of deploying the web application using EKS.
+   - Steps Taken: Detail each step you followed in the AWS Console.
+   - Challenges: Mention any difficulties you encountered and how you resolved them.
+   - Conclusion: Summarize your experience and the outcome of the deployment.
+
+3. Submit the Report
+   - Once your report is ready, submit it to your supervisor or mentor by the deadline.
+
+
+
+Final Tips
+
+- Use AWS Documentation: Refer to [AWS EKS Documentation](https://docs.aws.amazon.com/eks/) for additional details and troubleshooting tips.
+- Practice: Repeating the process a few times will help reinforce your understanding.
+- Ask for Help: If you run into issues, AWS forums and communities can be a great resource.
+
+
+
+Example Kubernetes YAML Deployment File (Optional)
+
+You can also create a YAML deployment file for Kubernetes instead of using the console for your application:
+
+[apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container
+        image: <account_id>.dkr.ecr.<region>.amazonaws.com/my-app-repo:latest
+        ports:
+        - containerPort: 80]
+
+
+Apply the deployment via `kubectl`:
+[kubectl apply -f my-app-deployment.yaml]
+
+
+This will automate the deployment process via Kubernetes.
+
